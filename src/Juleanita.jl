@@ -36,6 +36,7 @@ include("apply_qc.jl")
 include("noise_sweep.jl")
 include("fit_linearity.jl")
 include("IO_csv.jl")
+include("IO_caen.jl")
 include("utils.jl")
 include("utils_physics.jl")
 include("simple_dsp.jl")
@@ -51,4 +52,3 @@ include("process_peakfits.jl")
 include("process_pulser_linearity.jl")
 include("process_noisesweep.jl")
 end
-
