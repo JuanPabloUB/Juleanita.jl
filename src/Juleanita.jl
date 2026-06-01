@@ -24,7 +24,8 @@ export mvalue, muncert
 using Measures
 using Optim
 using Printf
-using PropDicts 
+using PropDicts
+using Random
 using RadiationDetectorDSP
 using RadiationDetectorSignals
 using RadiationSpectra
@@ -50,5 +51,9 @@ include("process_energy_calibration.jl")
 include("process_hit.jl")
 include("process_peakfits.jl")
 include("process_pulser_linearity.jl")
+include("rc_gaussian_fits.jl")
 include("process_noisesweep.jl")
+include("process_noisecurve.jl")
+include("process_noisecurve_fit.jl")
+include("process_pulser_cal.jl")
 end
