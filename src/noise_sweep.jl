@@ -35,8 +35,13 @@ export noise_sweep
 function noise_sweep(filter_type::Symbol, wvfs::ArrayOfRDWaveforms, dsp_config::DSPConfig, τ_pz::Quantity{T}; 
              ft::Quantity{T}= 0.0u"µs", τ_cusp::Quantity{<:AbstractFloat} = 10000000.0u"µs", τ_zac::Quantity{<:AbstractFloat} = 10000000.0u"µs" ) where T<:Real
 
-    # gather config parameters 
-    grid_rt   = getproperty(dsp_config, Symbol("e_grid_rt_$(filter_type)"))
+    # gather config parameters #hotfix since config files cannot have rc rt field
+    grid_rt = if filter_type == :rc
+        dsp_config.e_grid_rt_trap
+    else
+        getproperty(dsp_config, Symbol("e_grid_rt_$(filter_type)"))
+    end
+
     if ft == 0.0u"µs"
         (_, ft) = get_fltpars(PropDict(), :trap, dsp_config)
     end
@@ -65,11 +70,13 @@ function noise_sweep(filter_type::Symbol, wvfs::ArrayOfRDWaveforms, dsp_config::
     # filtered waveforms are already truncated to valid windows. no additional truncation needed.
     noise = zeros(length(grid_rt))
     for (i, rt) in enumerate(collect(grid_rt))
-        if 2 * rt + ft >= wvfs_pz[1].time[end]
+        if filter_type != :rc && 2 * rt + ft >= wvfs_pz[1].time[end]
             noise[i] = NaN
         else
             if filter_type == :trap
                 wvfs_flt =  TrapezoidalChargeFilter(rt, ft).(wvfs_pz)   # filtered waveforms 
+            elseif filter_type == :rc
+                wvfs_flt = RCFilter(rc = rt).(wvfs_pz)
             elseif filter_type == :cusp
                 wvfs_flt = CUSPChargeFilter(rt, ft, τ_cusp, flt_length_cusp, cusp_scale).(wvfs_pz) 
             elseif filter_type == :zac
